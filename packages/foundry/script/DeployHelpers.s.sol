@@ -67,10 +67,15 @@ contract ScaffoldETHDeploy is Script {
             vm.serializeString(jsonWrite, vm.toString(deployments[i].addr), deployments[i].name);
         }
 
-        string memory chainName = "foundry";  // Default to foundry for local chain
+        string memory chainName;
         
-        // For non-local chains, try to get the chain name
-        if (block.chainid != 31337) {
+        // Handle specific chain IDs
+        if (block.chainid == 31337) {
+            chainName = "foundry";  // Local Anvil chain
+        } else if (block.chainid == 10143) {
+            chainName = "monad";  // Monad testnet
+        } else {
+            // For other chains, try to get the chain name
             chainName = findChainName();
         }
         jsonWrite = vm.serializeString(jsonWrite, "networkName", chainName);
