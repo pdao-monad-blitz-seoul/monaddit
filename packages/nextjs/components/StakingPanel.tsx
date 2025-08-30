@@ -210,16 +210,16 @@ export function StakingPanel() {
         <h2 className="card-title">MDT Staking Vault</h2>
 
         {/* Balance Display */}
-        <div className="stats shadow mb-4">
+        <div className="stats bg-base-100 shadow mb-4">
           <div className="stat">
             <div className="stat-title">Wallet Balance</div>
-            <div className="stat-value text-primary">
+            <div className="stat-value text-lg font-bold">
               {mdtBalance ? formatEther(mdtBalance) : "0"} MDT
             </div>
           </div>
           <div className="stat">
             <div className="stat-title">Total Staked</div>
-            <div className="stat-value text-secondary">
+            <div className="stat-value text-lg font-bold">
               {formatEther(totalStaked)} MDT
             </div>
             <div className="stat-desc">
@@ -242,7 +242,7 @@ export function StakingPanel() {
         )}
 
         {/* Tab Navigation */}
-        <div className="tabs tabs-boxed mb-4">
+        <div className="tabs tabs-boxed bg-base-100 mb-4">
           <a 
             className={`tab ${activeTab === "stake" ? "tab-active" : ""}`}
             onClick={() => setActiveTab("stake")}
