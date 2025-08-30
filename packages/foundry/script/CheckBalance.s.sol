@@ -56,11 +56,11 @@ contract CheckBalance is Script {
         
         // Check if deployer has expected 1M tokens
         if (balance == 1_000_000 * 1e18) {
-            console.log("✅ Deployer has the expected 1,000,000 MDT tokens!");
+            console.log("[SUCCESS] Deployer has the expected 1,000,000 MDT tokens!");
         } else if (balance > 0) {
-            console.log("⚠️  Deployer has MDT tokens but not the expected 1M amount");
+            console.log("[WARNING] Deployer has MDT tokens but not the expected 1M amount");
         } else {
-            console.log("❌ Deployer has no MDT tokens!");
+            console.log("[ERROR] Deployer has no MDT tokens!");
         }
     }
 }
