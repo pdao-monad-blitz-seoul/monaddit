@@ -39,24 +39,24 @@ export default function StakingPage() {
 
       {/* Staking Information */}
       <div className="mt-12 grid grid-cols-1 md:grid-cols-3 gap-4">
-        <div className="card bg-base-100 shadow">
+        <div className="card bg-white shadow border border-gray-200">
           <div className="card-body">
-            <h3 className="card-title text-sm">Minimum Stake</h3>
-            <p className="text-2xl font-bold">10 MDT</p>
+            <h3 className="card-title text-sm text-gray-700">Minimum Stake</h3>
+            <p className="text-2xl font-bold text-gray-900">10 MDT</p>
             <p className="text-xs text-gray-500">Required to participate</p>
           </div>
         </div>
-        <div className="card bg-base-100 shadow">
+        <div className="card bg-white shadow border border-gray-200">
           <div className="card-body">
-            <h3 className="card-title text-sm">Stake Eligibility</h3>
-            <p className="text-2xl font-bold">7 Days</p>
+            <h3 className="card-title text-sm text-gray-700">Stake Eligibility</h3>
+            <p className="text-2xl font-bold text-gray-900">7 Days</p>
             <p className="text-xs text-gray-500">Minimum stake age for rewards</p>
           </div>
         </div>
-        <div className="card bg-base-100 shadow">
+        <div className="card bg-white shadow border border-gray-200">
           <div className="card-body">
-            <h3 className="card-title text-sm">Max Slashing</h3>
-            <p className="text-2xl font-bold">20%</p>
+            <h3 className="card-title text-sm text-gray-700">Max Slashing</h3>
+            <p className="text-2xl font-bold text-gray-900">20%</p>
             <p className="text-xs text-gray-500">Per incident cap</p>
           </div>
         </div>

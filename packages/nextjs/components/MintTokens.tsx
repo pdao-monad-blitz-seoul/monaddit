@@ -70,9 +70,9 @@ export function MintTokens() {
 
   if (!isConnected) {
     return (
-      <div className="card bg-base-100 shadow-xl">
+      <div className="card bg-white shadow-xl">
         <div className="card-body">
-          <p className="text-center">Please connect your wallet to mint test tokens</p>
+          <p className="text-center text-gray-700">Please connect your wallet to mint test tokens</p>
         </div>
       </div>
     );
@@ -81,9 +81,9 @@ export function MintTokens() {
   const isOwner = tokenOwner === address;
 
   return (
-    <div className="card bg-base-100 shadow-xl">
+    <div className="card bg-white shadow-xl">
       <div className="card-body">
-        <h2 className="card-title">Get Test MDT Tokens</h2>
+        <h2 className="card-title text-gray-900">Get Test MDT Tokens</h2>
         
         <div className="alert alert-info mb-4">
           <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" className="stroke-current shrink-0 w-6 h-6">
@@ -92,9 +92,9 @@ export function MintTokens() {
           <span>This is for testing only. In production, tokens would be purchased or earned.</span>
         </div>
 
-        <div className="stat bg-base-100 rounded-lg mb-4">
-          <div className="stat-title">Your MDT Balance</div>
-          <div className="stat-value text-primary">
+        <div className="stat bg-white border border-gray-200 rounded-lg mb-4">
+          <div className="stat-title text-gray-600">Your MDT Balance</div>
+          <div className="stat-value text-2xl font-bold text-gray-900">
             {mdtBalance ? formatEther(mdtBalance) : "0"} MDT
           </div>
         </div>
@@ -103,7 +103,7 @@ export function MintTokens() {
           <>
             <div className="form-control">
               <label className="label">
-                <span className="label-text">Amount to Mint</span>
+                <span className="label-text text-gray-700">Amount to Mint</span>
               </label>
               <input
                 type="number"

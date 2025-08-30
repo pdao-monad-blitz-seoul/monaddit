@@ -191,9 +191,9 @@ export function StakingPanel() {
 
   if (!isConnected) {
     return (
-      <div className="card bg-base-100 shadow-xl">
+      <div className="card bg-white shadow-xl">
         <div className="card-body">
-          <p className="text-center">Please connect your wallet to stake MDT</p>
+          <p className="text-center text-gray-700">Please connect your wallet to stake MDT</p>
         </div>
       </div>
     );
@@ -205,24 +205,24 @@ export function StakingPanel() {
   const stakeAge = stakeInfo ? stakeInfo[4] : BigInt(0);
 
   return (
-    <div className="card bg-base-100 shadow-xl">
+    <div className="card bg-white shadow-xl">
       <div className="card-body">
-        <h2 className="card-title">MDT Staking Vault</h2>
+        <h2 className="card-title text-gray-900">MDT Staking Vault</h2>
 
         {/* Balance Display */}
-        <div className="stats bg-base-100 shadow mb-4">
+        <div className="stats bg-white border border-gray-200 shadow mb-4">
           <div className="stat">
-            <div className="stat-title">Wallet Balance</div>
-            <div className="stat-value text-lg font-bold">
+            <div className="stat-title text-gray-600">Wallet Balance</div>
+            <div className="stat-value text-lg font-bold text-gray-900">
               {mdtBalance ? formatEther(mdtBalance) : "0"} MDT
             </div>
           </div>
           <div className="stat">
-            <div className="stat-title">Total Staked</div>
-            <div className="stat-value text-lg font-bold">
+            <div className="stat-title text-gray-600">Total Staked</div>
+            <div className="stat-value text-lg font-bold text-gray-900">
               {formatEther(totalStaked)} MDT
             </div>
-            <div className="stat-desc">
+            <div className="stat-desc text-gray-500">
               Available: {formatEther(availableStake)} | Locked: {formatEther(lockedStake)}
             </div>
           </div>
@@ -242,7 +242,7 @@ export function StakingPanel() {
         )}
 
         {/* Tab Navigation */}
-        <div className="tabs tabs-boxed bg-base-100 mb-4">
+        <div className="tabs tabs-boxed bg-gray-100 mb-4">
           <a 
             className={`tab ${activeTab === "stake" ? "tab-active" : ""}`}
             onClick={() => setActiveTab("stake")}
@@ -262,8 +262,8 @@ export function StakingPanel() {
           <div className="space-y-4">
             <div className="form-control">
               <label className="label">
-                <span className="label-text">Amount to Stake</span>
-                <span className="label-text-alt">Min: 10 MDT</span>
+                <span className="label-text text-gray-700">Amount to Stake</span>
+                <span className="label-text-alt text-gray-500">Min: 10 MDT</span>
               </label>
               <input
                 type="number"
@@ -310,8 +310,8 @@ export function StakingPanel() {
           <div className="space-y-4">
             <div className="form-control">
               <label className="label">
-                <span className="label-text">Amount to Withdraw</span>
-                <span className="label-text-alt">Available: {formatEther(availableStake)} MDT</span>
+                <span className="label-text text-gray-700">Amount to Withdraw</span>
+                <span className="label-text-alt text-gray-500">Available: {formatEther(availableStake)} MDT</span>
               </label>
               <input
                 type="number"

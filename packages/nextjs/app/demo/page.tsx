@@ -92,9 +92,9 @@ export default function DemoPage() {
         {/* Step 4: View Posts */}
         {currentStep >= 4 && (
           <div className={`${currentStep === 4 ? "lg:col-span-3" : "lg:col-span-1"}`}>
-            <div className="card bg-base-100 shadow-xl">
+            <div className="card bg-white shadow-xl">
               <div className="card-body">
-                <h2 className="card-title">Community Posts</h2>
+                <h2 className="card-title text-gray-900">Community Posts</h2>
                 <PostList />
               </div>
             </div>
@@ -124,26 +124,26 @@ export default function DemoPage() {
 
       {/* Info Cards */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-12">
-        <div className="card bg-base-100 shadow">
+        <div className="card bg-white shadow border border-gray-200">
           <div className="card-body">
-            <h3 className="card-title text-sm">Economic Security</h3>
-            <p className="text-xs">
+            <h3 className="card-title text-sm text-gray-700">Economic Security</h3>
+            <p className="text-xs text-gray-600">
               Every post requires 0.1 MDT bond. Bad content = bond slashed.
             </p>
           </div>
         </div>
-        <div className="card bg-base-100 shadow">
+        <div className="card bg-white shadow border border-gray-200">
           <div className="card-body">
-            <h3 className="card-title text-sm">Community Moderation</h3>
-            <p className="text-xs">
+            <h3 className="card-title text-sm text-gray-700">Community Moderation</h3>
+            <p className="text-xs text-gray-600">
               Users can challenge content. Jury votes decide the outcome.
             </p>
           </div>
         </div>
-        <div className="card bg-base-100 shadow">
+        <div className="card bg-white shadow border border-gray-200">
           <div className="card-body">
-            <h3 className="card-title text-sm">Reward System</h3>
-            <p className="text-xs">
+            <h3 className="card-title text-sm text-gray-700">Reward System</h3>
+            <p className="text-xs text-gray-600">
               Good behavior earns rewards from the staking pool.
             </p>
           </div>

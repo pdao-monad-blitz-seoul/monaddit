@@ -69,7 +69,7 @@ export function PostList() {
 
   if (posts.length === 0) {
     return (
-      <div className="card bg-base-100 shadow-xl">
+      <div className="card bg-white shadow-xl">
         <div className="card-body">
           <p className="text-center text-gray-500">No posts yet. Be the first to create one!</p>
         </div>
@@ -80,14 +80,14 @@ export function PostList() {
   return (
     <div className="space-y-4">
       {posts.map((post) => (
-        <div key={post.id} className="card bg-base-100 shadow-xl">
+        <div key={post.id} className="card bg-white shadow-xl border border-gray-200">
           <div className="card-body">
             <div className="flex justify-between items-start">
-              <h2 className="card-title">{post.title}</h2>
-              <div className="badge badge-primary">{post.status}</div>
+              <h2 className="card-title text-gray-900">{post.title}</h2>
+              <div className="badge badge-outline">{post.status}</div>
             </div>
             
-            <p className="text-gray-600 dark:text-gray-400">{post.content}</p>
+            <p className="text-gray-600">{post.content}</p>
             
             <div className="divider"></div>
             
