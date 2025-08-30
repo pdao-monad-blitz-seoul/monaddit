@@ -14,7 +14,18 @@ contract CheckBalance is Script {
         path = string.concat(path, string.concat(chainIdStr, ".json"));
         
         string memory json = vm.readFile(path);
-        address mdtTokenAddress = vm.parseJsonAddress(json, ".MdtToken");
+        
+        // Parse all addresses and find MdtToken
+        string[] memory keys = vm.parseJsonKeys(json, "$");
+        address mdtTokenAddress;
+        
+        for (uint i = 0; i < keys.length; i++) {
+            string memory contractName = vm.parseJsonString(json, string.concat(".", keys[i]));
+            if (keccak256(bytes(contractName)) == keccak256(bytes("MdtToken"))) {
+                mdtTokenAddress = vm.parseAddress(keys[i]);
+                break;
+            }
+        }
         
         console.log("========================================");
         console.log("MDT Token Balance Check");
@@ -26,9 +37,13 @@ contract CheckBalance is Script {
         // Get deployer address from environment
         address deployer;
         if (chainId == 31337) {
-            // Local: use LOCAL_PRIVATE_KEY
-            uint256 deployerKey = vm.envUint("LOCAL_PRIVATE_KEY");
-            deployer = vm.addr(deployerKey);
+            // Local: use LOCAL_PRIVATE_KEY if available, otherwise use default Anvil account
+            try vm.envUint("LOCAL_PRIVATE_KEY") returns (uint256 deployerKey) {
+                deployer = vm.addr(deployerKey);
+            } catch {
+                // Default to Anvil's first account
+                deployer = 0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266;
+            }
         } else if (chainId == 10143) {
             // Monad: use MONAD_PRIVATE_KEY
             uint256 deployerKey = vm.envUint("MONAD_PRIVATE_KEY");
@@ -40,6 +55,13 @@ contract CheckBalance is Script {
         }
         
         console.log("Deployer Address:", deployer);
+        console.log("Deployer Address (checksum):", vm.toString(deployer));
+        
+        if (mdtTokenAddress == address(0)) {
+            console.log("[ERROR] MdtToken address not found in deployment file!");
+            console.log("Please deploy contracts first using 'yarn deploy:local' or 'yarn deploy:monad'");
+            return;
+        }
         
         // Get balance
         MdtToken mdtToken = MdtToken(mdtTokenAddress);
