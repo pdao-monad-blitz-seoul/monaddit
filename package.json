@@ -17,6 +17,8 @@
     "deploy": "yarn foundry:deploy",
     "deploy:local": "yarn foundry:deploy:local",
     "deploy:monad": "yarn foundry:deploy:monad",
+    "check:balance": "yarn foundry:check:balance",
+    "check:balance:monad": "yarn foundry:check:balance:monad",
     "flatten": "yarn foundry:flatten",
     "fork": "yarn foundry:fork",
     "format": "yarn next:format && yarn foundry:format",
@@ -28,6 +30,8 @@
     "foundry:deploy": "yarn workspace @se-2/foundry deploy",
     "foundry:deploy:local": "yarn workspace @se-2/foundry deploy:local",
     "foundry:deploy:monad": "yarn workspace @se-2/foundry deploy:monad",
+    "foundry:check:balance": "yarn workspace @se-2/foundry check:balance",
+    "foundry:check:balance:monad": "yarn workspace @se-2/foundry check:balance:monad",
     "foundry:deploy-verify": "yarn workspace @se-2/foundry deploy:verify",
     "foundry:flatten": "yarn workspace @se-2/foundry flatten",
     "foundry:fork": "yarn workspace @se-2/foundry fork",
@@ -54,6 +58,7 @@
     "verify": "yarn foundry:verify"
   },
   "devDependencies": {
+    "dotenv-cli": "^10.0.0",
     "husky": "~9.1.6",
     "lint-staged": "~13.2.2"
   },
