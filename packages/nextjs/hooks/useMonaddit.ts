@@ -262,6 +262,8 @@ export const useMonaddit = () => {
 
 // Hook for backend API interactions
 export const useBackendAPI = () => {
+  const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || "";
+  
   // Use relative URLs for Next.js API routes
   const saveContent = useCallback(async (content: {
     title: string;
@@ -291,7 +293,7 @@ export const useBackendAPI = () => {
       console.error("Error saving content:", error);
       throw error;
     }
-  }, [backendUrl]);
+  }, []);
 
   const getContent = useCallback(async (id: string) => {
     try {
