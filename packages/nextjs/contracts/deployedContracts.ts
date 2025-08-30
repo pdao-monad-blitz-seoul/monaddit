@@ -5,9 +5,9 @@
 import { GenericContractsDeclaration } from "~~/utils/scaffold-eth/contract";
 
 const deployedContracts = {
-  31337: {
+  10143: {
     MdtToken: {
-      address: "0x700b6a60ce7eaaea56f065753d8dcb9653dbad35",
+      address: "0x5dbeed591792cb042e7dba157f99f2e14fff2ab0",
       abi: [
         {
           type: "constructor",
@@ -997,10 +997,10 @@ const deployedContracts = {
         },
       ],
       inheritedFunctions: {},
-      deployedOnBlock: 1,
+      deployedOnBlock: 33978330,
     },
     StakingVault: {
-      address: "0xa15bb66138824a1c7167f5e85b957d04dd34e468",
+      address: "0x7fc178d288a2de094926b07a443ebe35f42038c7",
       abi: [
         {
           type: "constructor",
@@ -1725,10 +1725,10 @@ const deployedContracts = {
         },
       ],
       inheritedFunctions: {},
-      deployedOnBlock: 2,
+      deployedOnBlock: 33978330,
     },
     ContentRegistry: {
-      address: "0xb19b36b1456e65e3a6d514d3f715f204bd59f431",
+      address: "0x3f6fd0c3995b6fb6c0563e65bf9f44a754261ff5",
       abi: [
         {
           type: "constructor",
@@ -2571,10 +2571,10 @@ const deployedContracts = {
         },
       ],
       inheritedFunctions: {},
-      deployedOnBlock: 3,
+      deployedOnBlock: 33978330,
     },
     ModerationGame: {
-      address: "0x8ce361602b935680e8dec218b820ff5056beb7af",
+      address: "0xf6876ddc90afe7753b23398ce104c2592ddea997",
       abi: [
         {
           type: "constructor",
@@ -3395,10 +3395,10 @@ const deployedContracts = {
         },
       ],
       inheritedFunctions: {},
-      deployedOnBlock: 3,
+      deployedOnBlock: 33978330,
     },
     ReputationSBT: {
-      address: "0xe1aa25618fa0c7a1cfdab5d6b456af611873b629",
+      address: "0x6b7a5c5de9d65617fc42e2a46b1b5a2e65c82184",
       abi: [
         {
           type: "constructor",
@@ -4457,10 +4457,10 @@ const deployedContracts = {
         },
       ],
       inheritedFunctions: {},
-      deployedOnBlock: 4,
+      deployedOnBlock: 33978330,
     },
     StakingRewards: {
-      address: "0xe1da8919f262ee86f9be05059c9280142cf23f48",
+      address: "0xb1f4b9d360d87a07733b0ea1f4bd0083bcc97df2",
       abi: [
         {
           type: "constructor",
@@ -5183,10 +5183,10 @@ const deployedContracts = {
         },
       ],
       inheritedFunctions: {},
-      deployedOnBlock: 4,
+      deployedOnBlock: 33978330,
     },
     Treasury: {
-      address: "0x0c8e79f3534b00d9a3d4a856b665bf4ebc22f2ba",
+      address: "0x8d066c45178b35b2e85272de3892ac6ef4af1722",
       abi: [
         {
           type: "constructor",
@@ -6023,7 +6023,7 @@ const deployedContracts = {
         },
       ],
       inheritedFunctions: {},
-      deployedOnBlock: 4,
+      deployedOnBlock: 33978330,
     },
   },
 } as const;

@@ -33,6 +33,23 @@ Monaddit is a Reddit-style on-chain community platform built on Monad L1 testnet
   - Content hash → Blockchain (on-chain anchoring)
   - Evidence/snapshots → IPFS (optional)
 
+## 📜 Deployed Contracts (Monad Testnet)
+
+| Contract | Address |
+|----------|---------||
+| **MdtToken** | `0x5DBEed591792cB042e7DBA157f99f2e14FFF2ab0` |
+| **StakingVault** | `0x7fC178D288a2de094926b07A443ebE35f42038C7` |
+| **ContentRegistry** | `0x3F6Fd0C3995B6fb6c0563E65bf9f44a754261FF5` |
+| **ModerationGame** | `0xF6876ddc90AFE7753B23398cE104C2592dDeA997` |
+| **ReputationSBT** | `0x6b7a5C5De9d65617fC42E2A46B1b5A2E65c82184` |
+| **StakingRewards** | `0xB1f4B9D360d87A07733B0ea1f4bd0083bcC97Df2` |
+| **Treasury** | `0x8d066C45178B35b2E85272de3892AC6EF4Af1722` |
+
+**Network Details:**
+- Chain: Monad Testnet
+- Chain ID: 10143
+- RPC URL: https://testnet-rpc.monad.xyz
+
 ## 📋 Requirements
 
 Before you begin, ensure you have:
@@ -64,14 +81,14 @@ Configure Monad testnet in your environment files:
 
 **`packages/foundry/.env`**:
 ```env
-MONAD_RPC_URL=your_monad_rpc_url
-MONAD_CHAIN_ID=monad_chain_id
+MONAD_RPC_URL=https://testnet-rpc.monad.xyz
+MONAD_CHAIN_ID=10143
 PRIVATE_KEY=your_deployment_key
 ```
 
 **`packages/nextjs/.env.local`**:
 ```env
-NEXT_PUBLIC_MONAD_RPC_URL=your_monad_rpc_url
+NEXT_PUBLIC_MONAD_RPC_URL=https://testnet-rpc.monad.xyz
 NEXT_PUBLIC_WALLET_CONNECT_PROJECT_ID=your_project_id
 NEXT_PUBLIC_BACKEND_URL=http://localhost:8787
 ```
@@ -80,7 +97,7 @@ NEXT_PUBLIC_BACKEND_URL=http://localhost:8787
 ```env
 DATABASE_URL=postgres://user:pass@localhost:5432/monaddit
 REDIS_URL=redis://localhost:6379
-MONAD_RPC_URL=your_monad_rpc_url
+MONAD_RPC_URL=https://testnet-rpc.monad.xyz
 BACKEND_PORT=8787
 ```
 
