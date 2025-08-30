@@ -1,7 +1,6 @@
 "use client";
 
 import { StakingPanel } from "~~/components/StakingPanel";
-import { MintTokens } from "~~/components/MintTokens";
 import { useAccount } from "wagmi";
 
 export default function StakingPage() {
@@ -25,14 +24,8 @@ export default function StakingPage() {
         </div>
       )}
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {/* Left Column - Get Tokens */}
-        <div>
-          <MintTokens />
-        </div>
-
-        {/* Right Column - Staking Panel */}
-        <div>
+      <div className="flex justify-center">
+        <div className="w-full max-w-2xl">
           <StakingPanel />
         </div>
       </div>

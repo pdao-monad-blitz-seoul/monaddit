@@ -268,7 +268,7 @@ export function StakingPanel() {
               <input
                 type="number"
                 placeholder="10"
-                className="input input-bordered"
+                className="input input-bordered bg-white border-gray-300 text-gray-900 focus:border-gray-500"
                 value={stakeAmount}
                 onChange={(e) => setStakeAmount(e.target.value)}
                 disabled={isApproving || isDepositing}
@@ -278,7 +278,7 @@ export function StakingPanel() {
             </div>
 
             <button
-              className={`btn btn-primary w-full ${isApproving || isDepositing ? "loading" : ""}`}
+              className={`btn btn-primary w-full text-white ${isApproving || isDepositing ? "loading" : ""}`}
               onClick={handleStake}
               disabled={
                 isApproving || 
@@ -316,7 +316,7 @@ export function StakingPanel() {
               <input
                 type="number"
                 placeholder="0"
-                className="input input-bordered"
+                className="input input-bordered bg-white border-gray-300 text-gray-900 focus:border-gray-500"
                 value={withdrawAmount}
                 onChange={(e) => setWithdrawAmount(e.target.value)}
                 disabled={isWithdrawing || availableStake === BigInt(0)}
@@ -327,7 +327,7 @@ export function StakingPanel() {
             </div>
 
             <button
-              className={`btn btn-warning w-full ${isWithdrawing ? "loading" : ""}`}
+              className={`btn btn-warning w-full text-gray-900 ${isWithdrawing ? "loading" : ""}`}
               onClick={handleWithdraw}
               disabled={
                 isWithdrawing || 
