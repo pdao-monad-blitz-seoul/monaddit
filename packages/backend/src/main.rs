@@ -91,10 +91,10 @@ async fn main() -> anyhow::Result<()> {
         .route("/chain/status", get(api::chain_status))
         // Content endpoints
         .route("/api/content", post(api::content::create_content))
-        .route("/api/content/:id", get(api::content::get_content))
+        .route("/api/content/{id}", get(api::content::get_content))
         .route("/api/contents", get(api::content::list_contents))
         .route(
-            "/api/content/hash/:hash",
+            "/api/content/hash/{hash}",
             get(api::content::get_content_by_hash),
         )
         .route("/api/stats", get(api::content::get_stats))
@@ -103,10 +103,10 @@ async fn main() -> anyhow::Result<()> {
         .route("/api/score/batch", post(api::score::batch_score))
         .route("/api/webhook/ml-score", post(api::score::ml_score_webhook))
         // Vote endpoints
-        .route("/api/vote/:content_id", post(api::vote::create_vote))
+        .route("/api/vote/{content_id}", post(api::vote::create_vote))
         // User endpoints
-        .route("/api/user/:address", get(api::user::get_user_profile))
-        .route("/api/user/:address", post(api::user::update_user_profile))
+        .route("/api/user/{address}", get(api::user::get_user_profile))
+        .route("/api/user/{address}", post(api::user::update_user_profile))
         // Add state
         .with_state(app_state)
         // Add middleware

@@ -1,8 +1,10 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import { useAccount } from "wagmi";
+import { useMonaddit, useBackendAPI } from "~~/hooks/useMonaddit";
+import { keccak256, toBytes } from "viem";
 import {
   ArrowBigUp,
   ArrowBigDown,
@@ -92,9 +94,83 @@ const communities = [
 ];
 
 export default function HomePage() {
-  const { isConnected } = useAccount();
+  const { isConnected, address } = useAccount();
   const [selectedCommunity, setSelectedCommunity] = useState("all");
   const [sortBy, setSortBy] = useState("hot");
+  const [posts, setPosts] = useState<any[]>([]);
+  const [isCreatingPost, setIsCreatingPost] = useState(false);
+  const [newPost, setNewPost] = useState({ title: "", content: "" });
+  
+  const {
+    mdtBalance,
+    stakeInfo,
+    hasSBT,
+    reputation,
+    mintTokens,
+    stakeTokens,
+    createPost,
+    createProfile,
+    isProcessing,
+    pendingRewards,
+    claim
+  } = useMonaddit();
+  
+  const { saveContent, listContents } = useBackendAPI();
+
+  // Load posts from backend
+  useEffect(() => {
+    const loadPosts = async () => {
+      try {
+        const contents = await listContents(20, 0);
+        setPosts(contents || []);
+      } catch (error) {
+        console.error("Failed to load posts:", error);
+        // Fallback to mock data
+        setPosts(mockPosts);
+      }
+    };
+    loadPosts();
+  }, []);
+
+  const handleCreatePost = async () => {
+    if (!newPost.title || !newPost.content) {
+      alert("Please fill in both title and content");
+      return;
+    }
+
+    try {
+      setIsCreatingPost(true);
+      
+      // Save to backend first
+      const savedContent = await saveContent({
+        title: newPost.title,
+        body: newPost.content,
+        author: address || "0x0000000000000000000000000000000000000000",
+      });
+      
+      // Generate content hash
+      const contentHash = keccak256(toBytes(JSON.stringify({
+        title: newPost.title,
+        body: newPost.content,
+        author: address,
+        timestamp: Date.now()
+      })));
+      
+      // Publish to blockchain
+      await createPost(contentHash, `backend:${savedContent.id}`);
+      
+      // Refresh posts
+      const contents = await listContents(20, 0);
+      setPosts(contents || mockPosts);
+      
+      // Reset form
+      setNewPost({ title: "", content: "" });
+      setIsCreatingPost(false);
+    } catch (error) {
+      console.error("Failed to create post:", error);
+      setIsCreatingPost(false);
+    }
+  };
 
   const handleVote = (postId: number, voteType: "up" | "down") => {
     console.log(`Voting ${voteType} on post ${postId}`);
@@ -105,6 +181,9 @@ export default function HomePage() {
     console.log(`Challenging post ${postId}`);
     // Implement challenge logic
   };
+
+  // Helper function for number parsing
+  const parseFloat = (value: string) => Number(value);
 
   const PostCard = ({ post }: { post: typeof mockPosts[0] }) => (
     <Card className="hover:shadow-lg transition-shadow duration-200">
@@ -231,6 +310,56 @@ export default function HomePage() {
             </Alert>
           )}
 
+          {/* Create Post Section */}
+          {isConnected && hasSBT && (
+            <Card className="mb-6">
+              <CardContent className="pt-6">
+                {!isCreatingPost ? (
+                  <Button 
+                    className="w-full" 
+                    onClick={() => setIsCreatingPost(true)}
+                    disabled={!stakeInfo || parseFloat(stakeInfo.available) < 0.1}
+                  >
+                    Create Post (0.1 MDT Bond)
+                  </Button>
+                ) : (
+                  <div className="space-y-4">
+                    <input
+                      type="text"
+                      placeholder="Post title..."
+                      className="w-full px-3 py-2 border rounded-md"
+                      value={newPost.title}
+                      onChange={(e) => setNewPost({ ...newPost, title: e.target.value })}
+                    />
+                    <textarea
+                      placeholder="Post content..."
+                      className="w-full px-3 py-2 border rounded-md h-24 resize-none"
+                      value={newPost.content}
+                      onChange={(e) => setNewPost({ ...newPost, content: e.target.value })}
+                    />
+                    <div className="flex gap-2">
+                      <Button 
+                        onClick={handleCreatePost}
+                        disabled={isProcessing || !newPost.title || !newPost.content}
+                      >
+                        {isProcessing ? "Publishing..." : "Publish"}
+                      </Button>
+                      <Button 
+                        variant="outline"
+                        onClick={() => {
+                          setIsCreatingPost(false);
+                          setNewPost({ title: "", content: "" });
+                        }}
+                      >
+                        Cancel
+                      </Button>
+                    </div>
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+          )}
+
           {/* Sorting Tabs */}
           <Tabs value={sortBy} onValueChange={setSortBy} className="mb-6">
             <TabsList>
@@ -251,9 +380,29 @@ export default function HomePage() {
 
           {/* Posts Feed */}
           <div className="space-y-4">
-            {mockPosts.map((post) => (
-              <PostCard key={post.id} post={post} />
-            ))}
+            {posts.length > 0 ? (
+              posts.map((post) => (
+                <PostCard key={post.id || post.content_id} post={{
+                  ...post,
+                  id: post.id || post.content_id,
+                  upvotes: post.upvotes || 0,
+                  downvotes: post.downvotes || 0,
+                  comments: post.comments || 0,
+                  bond: "0.1",
+                  status: post.status || "published",
+                  timestamp: post.created_at ? new Date(post.created_at).toLocaleString() : "방금 전",
+                  community: "all",
+                  authorKarma: 100,
+                  content: post.body || post.content,
+                }} />
+              ))
+            ) : (
+              <Card>
+                <CardContent className="py-8 text-center text-muted-foreground">
+                  No posts yet. Be the first to create one!
+                </CardContent>
+              </Card>
+            )}
           </div>
         </div>
 
@@ -299,25 +448,69 @@ export default function HomePage() {
               </CardHeader>
               <CardContent className="space-y-3">
                 <div className="flex justify-between text-sm">
-                  <span className="text-muted-foreground">Staked</span>
-                  <span className="font-medium">10.0 MDT</span>
+                  <span className="text-muted-foreground">Balance</span>
+                  <span className="font-medium">{mdtBalance} MDT</span>
                 </div>
-                <div className="flex justify-between text-sm">
-                  <span className="text-muted-foreground">Available</span>
-                  <span className="font-medium">9.7 MDT</span>
-                </div>
-                <div className="flex justify-between text-sm">
-                  <span className="text-muted-foreground">Locked</span>
-                  <span className="font-medium">0.3 MDT</span>
-                </div>
+                {stakeInfo ? (
+                  <>
+                    <div className="flex justify-between text-sm">
+                      <span className="text-muted-foreground">Staked</span>
+                      <span className="font-medium">{stakeInfo.totalAmount} MDT</span>
+                    </div>
+                    <div className="flex justify-between text-sm">
+                      <span className="text-muted-foreground">Available</span>
+                      <span className="font-medium">{stakeInfo.available} MDT</span>
+                    </div>
+                    <div className="flex justify-between text-sm">
+                      <span className="text-muted-foreground">Locked</span>
+                      <span className="font-medium">{stakeInfo.reserved} MDT</span>
+                    </div>
+                  </>
+                ) : (
+                  <div className="space-y-2">
+                    <Button 
+                      className="w-full" 
+                      size="sm"
+                      onClick={() => mintTokens("100")}
+                      disabled={isProcessing}
+                    >
+                      Get Test Tokens (100 MDT)
+                    </Button>
+                    {parseFloat(mdtBalance) >= 10 && (
+                      <Button 
+                        className="w-full" 
+                        size="sm"
+                        onClick={() => stakeTokens("10")}
+                        disabled={isProcessing}
+                      >
+                        Stake 10 MDT
+                      </Button>
+                    )}
+                  </div>
+                )}
+                {!hasSBT && stakeInfo && parseFloat(stakeInfo.totalAmount) >= 10 && (
+                  <Button 
+                    className="w-full" 
+                    size="sm"
+                    onClick={createProfile}
+                    disabled={isProcessing}
+                  >
+                    Create Profile (Mint SBT)
+                  </Button>
+                )}
                 <Separator />
                 <div className="flex justify-between text-sm">
                   <span className="text-muted-foreground">Pending Rewards</span>
                   <Badge variant="secondary" className="text-xs">
-                    +2.3 MDT
+                    +{pendingRewards} MDT
                   </Badge>
                 </div>
-                <Button className="w-full" size="sm">
+                <Button 
+                  className="w-full" 
+                  size="sm"
+                  onClick={claim}
+                  disabled={isProcessing || parseFloat(pendingRewards) === 0}
+                >
                   Claim Rewards
                 </Button>
               </CardContent>
