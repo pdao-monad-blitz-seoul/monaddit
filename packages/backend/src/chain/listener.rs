@@ -7,7 +7,7 @@ use futures_util::StreamExt;
 use serde_json::json;
 use tracing::{error, info};
 
-use crate::{chain::contracts::*, config::Config, db::Database};
+use crate::{config::Config, db::Database};
 
 pub struct EventListener {
     config: Config,

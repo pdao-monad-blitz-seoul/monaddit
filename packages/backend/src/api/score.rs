@@ -3,7 +3,6 @@ use std::sync::Arc;
 use uuid::Uuid;
 
 use crate::{
-    db::Database,
     models::{ScoreContentRequest, ScoreContentResponse, ToxicityScore},
     AppState,
 };

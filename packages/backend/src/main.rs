@@ -70,7 +70,7 @@ async fn main() -> anyhow::Result<()> {
     let event_db = db.clone();
     let event_config = config.clone();
     tokio::spawn(async move {
-        let mut listener = EventListener::new(event_config, event_db);
+        let listener = EventListener::new(event_config, event_db);
         if let Err(e) = listener.start().await {
             error!("Event listener error: {}", e);
         }

@@ -2,7 +2,6 @@ use alloy::{
     primitives::{address, Address, B256, U256},
     providers::{Provider, ProviderBuilder},
 };
-use std::sync::Arc;
 
 use crate::chain::contracts::*;
 use crate::config::Config;
@@ -20,10 +19,8 @@ pub struct ChainClient {
 impl ChainClient {
     pub async fn new(config: Config) -> Result<Self> {
         // Create HTTP provider
-        let regular_provider = ProviderBuilder::new()
-            .connect(&config.rpc_url)
-            .await?;
-        
+        let regular_provider = ProviderBuilder::new().connect(&config.rpc_url).await?;
+
         // Use the erased method to obtain a DynProvider
         let dyn_provider = regular_provider.erased();
 

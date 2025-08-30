@@ -9,7 +9,7 @@ use serde::{Deserialize, Serialize};
 use std::str::FromStr;
 use std::sync::Arc;
 
-use crate::{models::User, AppState};
+use crate::AppState;
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct UserProfile {

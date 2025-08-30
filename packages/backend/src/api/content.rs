@@ -12,8 +12,7 @@ use std::sync::Arc;
 use uuid::Uuid;
 
 use crate::{
-    db::Database,
-    models::{Content, ContentWithStats, CreateContentRequest, CreateContentResponse},
+    models::{Content, CreateContentRequest, CreateContentResponse},
     AppState,
 };
 
