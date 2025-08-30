@@ -34,10 +34,6 @@ export const MonadditHeader = () => {
   const { address, isConnected } = useAccount();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
-  // Mock data - replace with actual data from contracts
-  const userKarma = 420;
-  const userStake = "10.5";
-  const pendingRewards = "2.3";
 
   const navigation = [
     { name: "Home", href: "/", icon: Home },
@@ -97,28 +93,6 @@ export const MonadditHeader = () => {
               </Link>
             )}
 
-            {/* User Stats (when connected) */}
-            {isConnected && (
-              <div className="hidden lg:flex items-center gap-4 px-4 py-2 rounded-lg bg-secondary/50">
-                <div className="flex items-center gap-2">
-                  <Award className="h-4 w-4 text-yellow-500" />
-                  <span className="text-sm font-medium">{userKarma}</span>
-                </div>
-                <div className="h-4 w-px bg-border" />
-                <div className="flex items-center gap-2">
-                  <Coins className="h-4 w-4 text-green-500" />
-                  <span className="text-sm font-medium">{userStake} MDT</span>
-                </div>
-                {parseFloat(pendingRewards) > 0 && (
-                  <>
-                    <div className="h-4 w-px bg-border" />
-                    <Badge variant="secondary" className="text-xs">
-                      +{pendingRewards} MDT
-                    </Badge>
-                  </>
-                )}
-              </div>
-            )}
 
             {/* Wallet Connection */}
             <RainbowKitCustomConnectButton />

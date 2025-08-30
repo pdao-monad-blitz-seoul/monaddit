@@ -37,6 +37,11 @@ export const useMonaddit = () => {
     hash: depositHash,
   });
 
+  const { writeContract: withdrawFromVault, data: withdrawVaultHash } = useWriteContract();
+  const { isLoading: isWithdrawingVault, isSuccess: withdrawVaultSuccess } = useWaitForTransactionReceipt({
+    hash: withdrawVaultHash,
+  });
+
   // ContentRegistry hooks
   const { writeContract: publishContent, data: publishHash } = useWriteContract();
   const { isLoading: isPublishing, isSuccess: publishSuccess } = useWaitForTransactionReceipt({
@@ -127,6 +132,23 @@ export const useMonaddit = () => {
     }
   }, [approve, deposit]);
 
+  const withdrawStake = useCallback(async (amount: string) => {
+    try {
+      setIsProcessing(true);
+      withdrawFromVault({
+        address: contracts.StakingVault.address,
+        abi: contracts.StakingVault.abi,
+        functionName: "withdraw",
+        args: [parseEther(amount)],
+      });
+    } catch (error) {
+      console.error("Error withdrawing stake:", error);
+      notification.error("Failed to withdraw stake");
+    } finally {
+      setIsProcessing(false);
+    }
+  }, [withdrawFromVault]);
+
   const createPost = useCallback(async (contentHash: string, contentUri: string) => {
     try {
       setIsProcessing(true);
@@ -200,11 +222,12 @@ export const useMonaddit = () => {
   useEffect(() => {
     if (mintSuccess) notification.success("Tokens minted successfully!");
     if (depositSuccess) notification.success("Tokens staked successfully!");
+    if (withdrawVaultSuccess) notification.success("Stake withdrawn successfully!");
     if (publishSuccess) notification.success("Content published successfully!");
     if (withdrawSuccess) notification.success("Bond withdrawn successfully!");
     if (mintSBTSuccess) notification.success("Profile created successfully!");
     if (claimSuccess) notification.success("Rewards claimed successfully!");
-  }, [mintSuccess, depositSuccess, publishSuccess, withdrawSuccess, mintSBTSuccess, claimSuccess]);
+  }, [mintSuccess, depositSuccess, withdrawVaultSuccess, publishSuccess, withdrawSuccess, mintSBTSuccess, claimSuccess]);
 
   return {
     // State
@@ -224,11 +247,12 @@ export const useMonaddit = () => {
     pendingRewards: pendingRewards ? formatEther(pendingRewards as bigint) : "0",
     
     // Loading states
-    isProcessing: isProcessing || isMinting || isDepositing || isPublishing || isWithdrawing || isMintingSBT || isClaiming,
+    isProcessing: isProcessing || isMinting || isDepositing || isWithdrawingVault || isPublishing || isWithdrawing || isMintingSBT || isClaiming,
     
     // Functions
     mintTokens,
     stakeTokens,
+    withdrawStake,
     createPost,
     withdrawContentBond,
     createProfile,

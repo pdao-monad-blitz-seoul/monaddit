@@ -4,6 +4,7 @@ import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import { useAccount } from "wagmi";
 import { useMonaddit, useBackendAPI } from "~~/hooks/useMonaddit";
+import { notification } from "~~/utils/scaffold-eth";
 import { keccak256, toBytes, formatEther, parseEther } from "viem";
 import {
   ArrowBigUp,
@@ -52,6 +53,7 @@ export default function HomePage() {
     reputation,
     mintTokens,
     stakeTokens,
+    withdrawStake,
     createPost,
     createProfile,
     isProcessing,
@@ -375,6 +377,53 @@ export default function HomePage() {
                       <span className="text-muted-foreground">Locked</span>
                       <span className="font-medium">{formatEther(stakeInfo[2])} MDT</span>
                     </div>
+                    <Separator className="my-2" />
+                    <div className="space-y-2">
+                      <input
+                        type="number"
+                        placeholder="Amount"
+                        className="w-full px-3 py-1 text-sm border rounded-md"
+                        id="stake-amount-update"
+                        min="0"
+                        step="0.1"
+                      />
+                      <div className="grid grid-cols-2 gap-2">
+                        <Button 
+                          className="w-full" 
+                          size="sm"
+                          variant="outline"
+                          onClick={() => {
+                            const input = document.getElementById('stake-amount-update') as HTMLInputElement;
+                            const amount = input?.value;
+                            if (amount && parseFloat(amount) > 0) {
+                              stakeTokens(amount);
+                            } else {
+                              notification.error("Enter valid amount");
+                            }
+                          }}
+                          disabled={isProcessing || !mdtBalance || mdtBalance === BigInt(0)}
+                        >
+                          Add
+                        </Button>
+                        <Button 
+                          className="w-full" 
+                          size="sm"
+                          variant="outline"
+                          onClick={() => {
+                            const input = document.getElementById('stake-amount-update') as HTMLInputElement;
+                            const amount = input?.value;
+                            if (amount && parseFloat(amount) > 0) {
+                              withdrawStake(amount);
+                            } else {
+                              notification.error("Enter valid amount");
+                            }
+                          }}
+                          disabled={isProcessing || stakeInfo[1] === BigInt(0)}
+                        >
+                          Withdraw
+                        </Button>
+                      </div>
+                    </div>
                   </>
                 ) : (
                   <div className="space-y-2">
@@ -387,14 +436,32 @@ export default function HomePage() {
                       Get Test Tokens (100 MDT)
                     </Button>
                     {mdtBalance && mdtBalance >= parseEther("10") && (
-                      <Button 
-                        className="w-full" 
-                        size="sm"
-                        onClick={() => stakeTokens("10")}
-                        disabled={isProcessing}
-                      >
-                        Stake 10 MDT
-                      </Button>
+                      <>
+                        <input
+                          type="number"
+                          placeholder="Amount to stake (min: 10)"
+                          className="w-full px-3 py-2 text-sm border rounded-md"
+                          id="stake-amount"
+                          min="10"
+                          defaultValue="10"
+                        />
+                        <Button 
+                          className="w-full" 
+                          size="sm"
+                          onClick={() => {
+                            const input = document.getElementById('stake-amount') as HTMLInputElement;
+                            const amount = input?.value || "10";
+                            if (parseFloat(amount) >= 10) {
+                              stakeTokens(amount);
+                            } else {
+                              notification.error("Minimum stake is 10 MDT");
+                            }
+                          }}
+                          disabled={isProcessing}
+                        >
+                          Stake MDT
+                        </Button>
+                      </>
                     )}
                   </div>
                 )}
