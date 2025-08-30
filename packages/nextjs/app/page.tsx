@@ -4,7 +4,7 @@ import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import { useAccount } from "wagmi";
 import { useMonaddit, useBackendAPI } from "~~/hooks/useMonaddit";
-import { keccak256, toBytes } from "viem";
+import { keccak256, toBytes, formatEther, parseEther } from "viem";
 import {
   ArrowBigUp,
   ArrowBigDown,
@@ -36,62 +36,6 @@ import {
 import { Separator } from "@/components/ui/separator";
 import { cn } from "@/lib/utils";
 
-// Mock data - replace with actual blockchain data
-const mockPosts = [
-  {
-    id: 1,
-    author: "0x742d...8963",
-    authorKarma: 1250,
-    title: "Monad 테스트넷에서 첫 DApp 배포 성공!",
-    content: "드디어 Monad 테스트넷에 첫 DApp을 배포했습니다. 가스비가 정말 저렴하고 속도도 빠르네요...",
-    community: "dev",
-    timestamp: "2시간 전",
-    upvotes: 42,
-    downvotes: 3,
-    comments: 12,
-    bond: "0.1",
-    status: "published",
-    hasVoted: null,
-  },
-  {
-    id: 2,
-    author: "0x8f3a...2b4c",
-    authorKarma: 520,
-    title: "스테이킹 리워드 시스템 개선 제안",
-    content: "현재 7일 에포크가 너무 긴 것 같습니다. 3일로 줄이면 어떨까요?",
-    community: "governance",
-    timestamp: "5시간 전",
-    upvotes: 28,
-    downvotes: 8,
-    comments: 23,
-    bond: "0.1",
-    status: "challenged",
-    hasVoted: "up",
-  },
-  {
-    id: 3,
-    author: "0x5c9e...7fa1",
-    authorKarma: 890,
-    title: "Web3 보안 가이드: 시드 문구 관리 방법",
-    content: "많은 분들이 시드 문구 관리를 소홀히 하시는데, 이것만은 꼭 지켜주세요...",
-    community: "security",
-    timestamp: "8시간 전",
-    upvotes: 156,
-    downvotes: 2,
-    comments: 34,
-    bond: "0.1",
-    status: "published",
-    hasVoted: "up",
-  },
-];
-
-const communities = [
-  { id: "all", name: "All Communities", members: 15234 },
-  { id: "dev", name: "Development", members: 4521 },
-  { id: "governance", name: "Governance", members: 2103 },
-  { id: "security", name: "Security", members: 3456 },
-  { id: "trading", name: "Trading", members: 5654 },
-];
 
 export default function HomePage() {
   const { isConnected, address } = useAccount();
@@ -125,8 +69,7 @@ export default function HomePage() {
         setPosts(contents || []);
       } catch (error) {
         console.error("Failed to load posts:", error);
-        // Fallback to mock data
-        setPosts(mockPosts);
+        setPosts([]);
       }
     };
     loadPosts();
@@ -161,7 +104,7 @@ export default function HomePage() {
       
       // Refresh posts
       const contents = await listContents(20, 0);
-      setPosts(contents || mockPosts);
+      setPosts(contents || []);
       
       // Reset form
       setNewPost({ title: "", content: "" });
@@ -185,7 +128,7 @@ export default function HomePage() {
   // Helper function for number parsing
   const parseFloat = (value: string) => Number(value);
 
-  const PostCard = ({ post }: { post: typeof mockPosts[0] }) => (
+  const PostCard = ({ post }: { post: any }) => (
     <Card className="hover:shadow-lg transition-shadow duration-200">
       <div className="flex">
         {/* Vote Section */}
@@ -231,10 +174,6 @@ export default function HomePage() {
                 <AvatarFallback>U</AvatarFallback>
               </Avatar>
               <span className="font-medium">{post.author}</span>
-              <Badge variant="secondary" className="text-xs ml-1">
-                <Award className="h-3 w-3 mr-1" />
-                {post.authorKarma}
-              </Badge>
             </div>
             <span>•</span>
             <span>{post.timestamp}</span>
@@ -392,7 +331,6 @@ export default function HomePage() {
                   status: post.status || "published",
                   timestamp: post.created_at ? new Date(post.created_at).toLocaleString() : "방금 전",
                   community: "all",
-                  authorKarma: 100,
                   content: post.body || post.content,
                 }} />
               ))
@@ -408,34 +346,6 @@ export default function HomePage() {
 
         {/* Sidebar */}
         <div className="space-y-6">
-          {/* Community Filter */}
-          <Card>
-            <CardHeader className="pb-3">
-              <h3 className="font-semibold flex items-center gap-2">
-                <Users className="h-4 w-4" />
-                Communities
-              </h3>
-            </CardHeader>
-            <CardContent>
-              <Select value={selectedCommunity} onValueChange={setSelectedCommunity}>
-                <SelectTrigger>
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  {communities.map((community) => (
-                    <SelectItem key={community.id} value={community.id}>
-                      <div className="flex items-center justify-between w-full">
-                        <span>{community.name}</span>
-                        <Badge variant="secondary" className="ml-2 text-xs">
-                          {community.members.toLocaleString()}
-                        </Badge>
-                      </div>
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </CardContent>
-          </Card>
 
           {/* Staking Info */}
           {isConnected && (
@@ -449,21 +359,21 @@ export default function HomePage() {
               <CardContent className="space-y-3">
                 <div className="flex justify-between text-sm">
                   <span className="text-muted-foreground">Balance</span>
-                  <span className="font-medium">{mdtBalance} MDT</span>
+                  <span className="font-medium">{mdtBalance ? formatEther(mdtBalance) : "0"} MDT</span>
                 </div>
-                {stakeInfo ? (
+                {stakeInfo && stakeInfo[0] > 0 ? (
                   <>
                     <div className="flex justify-between text-sm">
                       <span className="text-muted-foreground">Staked</span>
-                      <span className="font-medium">{stakeInfo.totalAmount} MDT</span>
+                      <span className="font-medium">{formatEther(stakeInfo[0])} MDT</span>
                     </div>
                     <div className="flex justify-between text-sm">
                       <span className="text-muted-foreground">Available</span>
-                      <span className="font-medium">{stakeInfo.available} MDT</span>
+                      <span className="font-medium">{formatEther(stakeInfo[1])} MDT</span>
                     </div>
                     <div className="flex justify-between text-sm">
                       <span className="text-muted-foreground">Locked</span>
-                      <span className="font-medium">{stakeInfo.reserved} MDT</span>
+                      <span className="font-medium">{formatEther(stakeInfo[2])} MDT</span>
                     </div>
                   </>
                 ) : (
@@ -476,7 +386,7 @@ export default function HomePage() {
                     >
                       Get Test Tokens (100 MDT)
                     </Button>
-                    {parseFloat(mdtBalance) >= 10 && (
+                    {mdtBalance && mdtBalance >= parseEther("10") && (
                       <Button 
                         className="w-full" 
                         size="sm"
@@ -488,7 +398,7 @@ export default function HomePage() {
                     )}
                   </div>
                 )}
-                {!hasSBT && stakeInfo && parseFloat(stakeInfo.totalAmount) >= 10 && (
+                {!hasSBT && stakeInfo && stakeInfo[0] >= parseEther("10") && (
                   <Button 
                     className="w-full" 
                     size="sm"
@@ -502,14 +412,14 @@ export default function HomePage() {
                 <div className="flex justify-between text-sm">
                   <span className="text-muted-foreground">Pending Rewards</span>
                   <Badge variant="secondary" className="text-xs">
-                    +{pendingRewards} MDT
+                    +{pendingRewards ? formatEther(pendingRewards) : "0"} MDT
                   </Badge>
                 </div>
                 <Button 
                   className="w-full" 
                   size="sm"
                   onClick={claim}
-                  disabled={isProcessing || parseFloat(pendingRewards) === 0}
+                  disabled={isProcessing || !pendingRewards || pendingRewards === BigInt(0)}
                 >
                   Claim Rewards
                 </Button>
@@ -517,65 +427,7 @@ export default function HomePage() {
             </Card>
           )}
 
-          {/* Top Contributors */}
-          <Card>
-            <CardHeader className="pb-3">
-              <h3 className="font-semibold flex items-center gap-2">
-                <Trophy className="h-4 w-4" />
-                Top Contributors
-              </h3>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-3">
-                {[
-                  { address: "0x742d...8963", karma: 1250, rank: 1 },
-                  { address: "0x5c9e...7fa1", karma: 890, rank: 2 },
-                  { address: "0x8f3a...2b4c", karma: 520, rank: 3 },
-                ].map((user) => (
-                  <div key={user.address} className="flex items-center gap-3">
-                    <span className="text-lg font-bold text-muted-foreground w-6">
-                      {user.rank}
-                    </span>
-                    <Avatar className="h-8 w-8">
-                      <AvatarImage src={`https://avatar.vercel.sh/${user.address}`} />
-                      <AvatarFallback>U</AvatarFallback>
-                    </Avatar>
-                    <div className="flex-1">
-                      <p className="text-sm font-medium">{user.address}</p>
-                      <p className="text-xs text-muted-foreground">
-                        {user.karma} karma
-                      </p>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </CardContent>
-          </Card>
 
-          {/* Platform Stats */}
-          <Card>
-            <CardHeader className="pb-3">
-              <h3 className="font-semibold">Platform Stats</h3>
-            </CardHeader>
-            <CardContent className="space-y-2 text-sm">
-              <div className="flex justify-between">
-                <span className="text-muted-foreground">Total Staked</span>
-                <span className="font-medium">152,340 MDT</span>
-              </div>
-              <div className="flex justify-between">
-                <span className="text-muted-foreground">Active Users</span>
-                <span className="font-medium">3,421</span>
-              </div>
-              <div className="flex justify-between">
-                <span className="text-muted-foreground">Total Posts</span>
-                <span className="font-medium">12,543</span>
-              </div>
-              <div className="flex justify-between">
-                <span className="text-muted-foreground">Challenges Today</span>
-                <span className="font-medium">8</span>
-              </div>
-            </CardContent>
-          </Card>
         </div>
       </div>
     </div>
