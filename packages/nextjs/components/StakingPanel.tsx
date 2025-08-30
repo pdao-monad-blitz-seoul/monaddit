@@ -110,8 +110,8 @@ export function StakingPanel() {
       return;
     }
 
-    // Check balance
-    if (!mdtBalance || mdtBalance < amount) {
+    // Check balance (mdtBalance is a BigInt)
+    if (!mdtBalance || BigInt(mdtBalance) < amount) {
       notification.error("Insufficient MDT balance");
       return;
     }
@@ -133,7 +133,7 @@ export function StakingPanel() {
 
   // After approval success, deposit
   useEffect(() => {
-    if (isApprovalSuccess && stakeAmount) {
+    if (isApprovalSuccess && stakeAmount && activeTab === "stake") {
       const amount = parseEther(stakeAmount);
       notification.info("Depositing MDT to staking vault...");
       deposit({
@@ -143,7 +143,7 @@ export function StakingPanel() {
         args: [amount],
       });
     }
-  }, [isApprovalSuccess, stakeAmount, deposit, contracts]);
+  }, [isApprovalSuccess, stakeAmount, activeTab, deposit, contracts]);
 
   const handleWithdraw = async () => {
     if (!withdrawAmount || parseFloat(withdrawAmount) <= 0) {
@@ -278,7 +278,7 @@ export function StakingPanel() {
             </div>
 
             <button
-              className={`btn btn-primary w-full text-gray-900 ${isApproving || isDepositing ? "loading" : ""}`}
+              className={`btn btn-primary w-full ${(stakeAmount && parseFloat(stakeAmount) > 0) ? "text-white" : "text-gray-900"} ${isApproving || isDepositing ? "loading" : ""}`}
               onClick={handleStake}
               disabled={
                 isApproving || 
@@ -327,7 +327,7 @@ export function StakingPanel() {
             </div>
 
             <button
-              className={`btn btn-warning w-full text-gray-900 ${isWithdrawing ? "loading" : ""}`}
+              className={`btn btn-warning w-full ${(withdrawAmount && parseFloat(withdrawAmount) > 0) ? "text-white" : "text-gray-900"} ${isWithdrawing ? "loading" : ""}`}
               onClick={handleWithdraw}
               disabled={
                 isWithdrawing || 
