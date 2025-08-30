@@ -37,13 +37,9 @@ contract CheckBalance is Script {
         // Get deployer address from environment
         address deployer;
         if (chainId == 31337) {
-            // Local: use LOCAL_PRIVATE_KEY if available, otherwise use default Anvil account
-            try vm.envUint("LOCAL_PRIVATE_KEY") returns (uint256 deployerKey) {
-                deployer = vm.addr(deployerKey);
-            } catch {
-                // Default to Anvil's first account
-                deployer = 0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266;
-            }
+            // Local: use LOCAL_PRIVATE_KEY from .env
+            uint256 deployerKey = vm.envUint("LOCAL_PRIVATE_KEY");
+            deployer = vm.addr(deployerKey);
         } else if (chainId == 10143) {
             // Monad: use MONAD_PRIVATE_KEY
             uint256 deployerKey = vm.envUint("MONAD_PRIVATE_KEY");
