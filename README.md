@@ -82,7 +82,6 @@ DATABASE_URL=postgres://user:pass@localhost:5432/monaddit
 REDIS_URL=redis://localhost:6379
 MONAD_RPC_URL=your_monad_rpc_url
 BACKEND_PORT=8787
-WALLET_PRIVATE_KEY=your_backend_wallet_key
 ```
 
 ### 3. Local Development
