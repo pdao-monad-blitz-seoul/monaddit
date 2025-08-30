@@ -262,16 +262,18 @@ export const useMonaddit = () => {
 
 // Hook for backend API interactions
 export const useBackendAPI = () => {
-  const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || "http://localhost:8787";
-
+  // Use relative URLs for Next.js API routes
   const saveContent = useCallback(async (content: {
     title: string;
     body: string;
     author: string;
+    community?: string;
+    tags?: string[];
+    contentType?: string;
     parent_id?: string;
   }) => {
     try {
-      const response = await fetch(`${backendUrl}/api/content`, {
+      const response = await fetch(`/api/content`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -293,7 +295,7 @@ export const useBackendAPI = () => {
 
   const getContent = useCallback(async (id: string) => {
     try {
-      const response = await fetch(`${backendUrl}/api/content/${id}`);
+      const response = await fetch(`/api/content/${id}`);
       
       if (!response.ok) {
         throw new Error("Failed to fetch content");
@@ -305,11 +307,11 @@ export const useBackendAPI = () => {
       console.error("Error fetching content:", error);
       throw error;
     }
-  }, [backendUrl]);
+  }, []);
 
   const listContents = useCallback(async (limit = 20, offset = 0) => {
     try {
-      const response = await fetch(`${backendUrl}/api/contents?limit=${limit}&offset=${offset}`);
+      const response = await fetch(`/api/content?limit=${limit}&offset=${offset}`);
       
       if (!response.ok) {
         throw new Error("Failed to fetch contents");
@@ -321,11 +323,11 @@ export const useBackendAPI = () => {
       console.error("Error fetching contents:", error);
       throw error;
     }
-  }, [backendUrl]);
+  }, []);
 
   const scoreContent = useCallback(async (contentId: string) => {
     try {
-      const response = await fetch(`${backendUrl}/api/score`, {
+      const response = await fetch(`/api/score`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -343,7 +345,7 @@ export const useBackendAPI = () => {
       console.error("Error scoring content:", error);
       throw error;
     }
-  }, [backendUrl]);
+  }, []);
 
   return {
     saveContent,

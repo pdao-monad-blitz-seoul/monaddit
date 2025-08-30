@@ -1,8 +1,10 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useAccount } from "wagmi";
+import { useMonaddit, useBackendAPI } from "~~/hooks/useMonaddit";
+import { createHash } from "crypto";
 import {
   AlertCircle,
   FileText,
@@ -49,7 +51,9 @@ const communities = [
 
 export default function CreateContentPage() {
   const router = useRouter();
-  const { isConnected } = useAccount();
+  const { address, isConnected } = useAccount();
+  const { mdtBalance, stakeInfo, createPost, isProcessing } = useMonaddit();
+  const { saveContent } = useBackendAPI();
   const [contentType, setContentType] = useState<"post" | "link">("post");
   const [title, setTitle] = useState("");
   const [content, setContent] = useState("");
@@ -59,6 +63,21 @@ export default function CreateContentPage() {
   const [showPreview, setShowPreview] = useState(false);
   const [showConfirmDialog, setShowConfirmDialog] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [hasEnoughBalance, setHasEnoughBalance] = useState(false);
+  const [hasEnoughStake, setHasEnoughStake] = useState(false);
+
+  // Check user eligibility
+  useEffect(() => {
+    if (mdtBalance && stakeInfo) {
+      // Need at least 0.1 MDT available balance for bond
+      const availableBalance = parseFloat(mdtBalance);
+      setHasEnoughBalance(availableBalance >= 0.1);
+      
+      // Need at least 10 MDT staked to participate
+      const stakedAmount = parseFloat(stakeInfo.totalAmount);
+      setHasEnoughStake(stakedAmount >= 10);
+    }
+  }, [mdtBalance, stakeInfo]);
 
   const handleSubmit = async () => {
     if (!title.trim()) {
@@ -85,19 +104,40 @@ export default function CreateContentPage() {
   };
 
   const handleConfirmSubmit = async () => {
+    if (!address) {
+      toast.error("Please connect your wallet");
+      return;
+    }
+
     setIsSubmitting(true);
     try {
-      // TODO: Implement actual submission logic
-      // 1. Store content in backend
-      // 2. Get content hash
-      // 3. Submit to blockchain with bond
+      // 1. Prepare content for backend
+      const fullContent = contentType === "post" 
+        ? content 
+        : `${link}\n\n${content}`; // For link posts, combine URL and description
+
+      const contentData = {
+        title,
+        body: fullContent,
+        author: address,
+        community,
+        tags: tags.split(",").map(t => t.trim()).filter(t => t),
+        contentType,
+      };
+
+      // 2. Save to backend and get content hash
+      const response = await saveContent(contentData);
+      const { id: contentId, contentHash } = response;
+
+      // 3. Publish to blockchain with bond
+      const contentUri = `/api/content/${contentId}`; // URI to fetch content from backend
+      await createPost(contentHash, contentUri);
       
-      await new Promise(resolve => setTimeout(resolve, 2000)); // Simulate transaction
-      
-      toast.success("Content published successfully! 0.1 MDT bond locked.");
+      toast.success("Content published successfully! 0.1 MDT bond locked for 7 days.");
       router.push("/");
     } catch (error) {
-      toast.error("Failed to publish content");
+      console.error("Publishing error:", error);
+      toast.error("Failed to publish content. Please try again.");
     } finally {
       setIsSubmitting(false);
       setShowConfirmDialog(false);
@@ -117,6 +157,47 @@ export default function CreateContentPage() {
     );
   }
 
+  // Check eligibility
+  if (!hasEnoughStake) {
+    return (
+      <div className="container mx-auto px-4 py-12 max-w-2xl">
+        <Alert>
+          <AlertCircle className="h-4 w-4" />
+          <AlertDescription>
+            <div className="space-y-2">
+              <div className="font-medium">Insufficient Stake</div>
+              <div>You need at least 10 MDT staked to create content.</div>
+              <div className="text-sm">Current stake: {stakeInfo?.totalAmount || "0"} MDT</div>
+              <Button onClick={() => router.push("/staking")} className="mt-2">
+                Go to Staking
+              </Button>
+            </div>
+          </AlertDescription>
+        </Alert>
+      </div>
+    );
+  }
+
+  if (!hasEnoughBalance) {
+    return (
+      <div className="container mx-auto px-4 py-12 max-w-2xl">
+        <Alert>
+          <AlertCircle className="h-4 w-4" />
+          <AlertDescription>
+            <div className="space-y-2">
+              <div className="font-medium">Insufficient Balance</div>
+              <div>You need at least 0.1 MDT available balance for the content bond.</div>
+              <div className="text-sm">Current balance: {mdtBalance || "0"} MDT</div>
+              <Button onClick={() => router.push("/staking")} className="mt-2">
+                Get MDT Tokens
+              </Button>
+            </div>
+          </AlertDescription>
+        </Alert>
+      </div>
+    );
+  }
+
   return (
     <div className="container mx-auto px-4 py-6 max-w-4xl">
       <Card>
@@ -127,6 +208,18 @@ export default function CreateContentPage() {
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-6">
+          {/* Balance Display */}
+          <div className="flex justify-between items-center p-3 bg-muted rounded-lg">
+            <div className="text-sm">
+              <span className="text-muted-foreground">Available Balance:</span>
+              <span className="ml-2 font-medium">{mdtBalance} MDT</span>
+            </div>
+            <div className="text-sm">
+              <span className="text-muted-foreground">Staked:</span>
+              <span className="ml-2 font-medium">{stakeInfo?.totalAmount || "0"} MDT</span>
+            </div>
+          </div>
+
           {/* Content Type Tabs */}
           <Tabs value={contentType} onValueChange={(v) => setContentType(v as "post" | "link")}>
             <TabsList className="grid w-full grid-cols-2 max-w-[400px]">
@@ -295,12 +388,22 @@ export default function CreateContentPage() {
               <Button
                 variant="outline"
                 onClick={() => router.push("/")}
+                disabled={isProcessing || isSubmitting}
               >
                 Cancel
               </Button>
-              <Button onClick={handleSubmit}>
-                <Send className="h-4 w-4 mr-2" />
-                Publish (0.1 MDT)
+              <Button 
+                onClick={handleSubmit}
+                disabled={isProcessing || isSubmitting || !hasEnoughBalance}
+              >
+                {isProcessing || isSubmitting ? (
+                  <>Publishing...</>
+                ) : (
+                  <>
+                    <Send className="h-4 w-4 mr-2" />
+                    Publish (0.1 MDT)
+                  </>
+                )}
               </Button>
             </div>
           </div>
@@ -347,9 +450,9 @@ export default function CreateContentPage() {
             </Button>
             <Button
               onClick={handleConfirmSubmit}
-              disabled={isSubmitting}
+              disabled={isSubmitting || isProcessing}
             >
-              {isSubmitting ? "Publishing..." : "Confirm & Publish"}
+              {isSubmitting || isProcessing ? "Publishing..." : "Confirm & Publish"}
             </Button>
           </DialogFooter>
         </DialogContent>

@@ -92,7 +92,7 @@ export default function DemoPage() {
         {/* Step 4: View Posts */}
         {currentStep >= 4 && (
           <div className={`${currentStep === 4 ? "lg:col-span-3" : "lg:col-span-1"}`}>
-            <div className="card bg-base-200 shadow-xl">
+            <div className="card bg-base-100 shadow-xl">
               <div className="card-body">
                 <h2 className="card-title">Community Posts</h2>
                 <PostList />

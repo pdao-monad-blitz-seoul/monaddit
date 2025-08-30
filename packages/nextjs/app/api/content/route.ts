@@ -1,37 +1,48 @@
 import { NextRequest, NextResponse } from "next/server";
-import { createHash } from "crypto";
+import { keccak256, toHex } from "viem";
 
 // In-memory storage for demo (replace with actual database in production)
 const contentStore = new Map<string, any>();
 
 export async function POST(request: NextRequest) {
   try {
-    const body = await request.json();
-    const { title, content, author, contentType = "post" } = body;
+    const requestBody = await request.json();
+    const { title, body, author, contentType = "post", community, tags } = requestBody;
 
-    if (!title || !content || !author) {
+    if (!title || !body || !author) {
       return NextResponse.json(
         { error: "Missing required fields" },
         { status: 400 }
       );
     }
 
-    // Create content hash
-    const contentString = JSON.stringify({ title, content, author, contentType });
-    const contentHash = "0x" + createHash("sha256").update(contentString).digest("hex");
-
     // Generate unique ID
     const contentId = Date.now().toString();
+    const timestamp = Date.now();
+
+    // Create content hash using keccak256 (compatible with smart contract)
+    const contentString = JSON.stringify({ 
+      title, 
+      body, 
+      author, 
+      contentType,
+      community,
+      tags,
+      timestamp 
+    });
+    const contentHash = keccak256(toHex(contentString));
 
     // Store content (in production, use PostgreSQL)
     const contentData = {
       id: contentId,
       title,
-      content,
+      content: body,
       author,
       contentType,
+      community,
+      tags,
       contentHash,
-      timestamp: new Date().toISOString(),
+      timestamp: new Date(timestamp).toISOString(),
       status: "published",
     };
 
@@ -40,7 +51,7 @@ export async function POST(request: NextRequest) {
     // Return hash for on-chain storage
     return NextResponse.json({
       success: true,
-      contentId,
+      id: contentId,
       contentHash,
       uri: `/api/content/${contentId}`,
     });

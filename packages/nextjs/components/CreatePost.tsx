@@ -151,7 +151,7 @@ export function CreatePost() {
 
   if (!isConnected) {
     return (
-      <div className="card bg-base-200 shadow-xl">
+      <div className="card bg-base-100 shadow-xl">
         <div className="card-body">
           <p className="text-center">Please connect your wallet to create a post</p>
         </div>
@@ -160,7 +160,7 @@ export function CreatePost() {
   }
 
   return (
-    <div className="card bg-base-200 shadow-xl">
+    <div className="card bg-base-100 shadow-xl">
       <div className="card-body">
         <h2 className="card-title">Create New Post</h2>
         

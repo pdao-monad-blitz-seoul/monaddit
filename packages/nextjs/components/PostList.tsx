@@ -33,7 +33,19 @@ export function PostList() {
       const response = await fetch("/api/content");
       if (response.ok) {
         const data = await response.json();
-        setPosts(data);
+        // Transform data to match the expected Post interface
+        const transformedPosts = data.map((item: any) => ({
+          id: item.id,
+          title: item.title,
+          content: item.content,
+          author: item.author,
+          contentHash: item.contentHash,
+          timestamp: item.timestamp,
+          status: item.status,
+          community: item.community,
+          tags: item.tags,
+        }));
+        setPosts(transformedPosts);
       }
     } catch (error) {
       console.error("Error fetching posts:", error);
@@ -57,7 +69,7 @@ export function PostList() {
 
   if (posts.length === 0) {
     return (
-      <div className="card bg-base-200 shadow-xl">
+      <div className="card bg-base-100 shadow-xl">
         <div className="card-body">
           <p className="text-center text-gray-500">No posts yet. Be the first to create one!</p>
         </div>
