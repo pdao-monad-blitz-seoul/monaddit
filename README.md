@@ -36,7 +36,7 @@ Monaddit is a Reddit-style on-chain community platform built on Monad L1 testnet
 ## 📜 Deployed Contracts (Monad Testnet)
 
 | Contract | Address |
-|----------|---------||
+|----------|---------|
 | **MdtToken** | `0x5DBEed591792cB042e7DBA157f99f2e14FFF2ab0` |
 | **StakingVault** | `0x7fC178D288a2de094926b07A443ebE35f42038C7` |
 | **ContentRegistry** | `0x3F6Fd0C3995B6fb6c0563E65bf9f44a754261FF5` |
