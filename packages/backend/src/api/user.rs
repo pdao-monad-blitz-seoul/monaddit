@@ -6,8 +6,8 @@ use axum::{
     Json,
 };
 use serde::{Deserialize, Serialize};
-use std::sync::Arc;
 use std::str::FromStr;
+use std::sync::Arc;
 
 use crate::{models::User, AppState};
 
@@ -27,8 +27,7 @@ pub async fn get_user_profile(
     Path(address): Path<String>,
 ) -> Result<impl IntoResponse, StatusCode> {
     // Get on-chain data
-    let user_address = Address::from_str(&address)
-        .map_err(|_| StatusCode::BAD_REQUEST)?;
+    let user_address = Address::from_str(&address).map_err(|_| StatusCode::BAD_REQUEST)?;
 
     let stake_info = state
         .chain_client
@@ -40,7 +39,10 @@ pub async fn get_user_profile(
         .chain_client
         .get_reputation(user_address)
         .await
-        .unwrap_or((alloy::primitives::U256::from(100), alloy::primitives::U256::ZERO));
+        .unwrap_or((
+            alloy::primitives::U256::from(100),
+            alloy::primitives::U256::ZERO,
+        ));
 
     let reputation_multiplier = state
         .chain_client

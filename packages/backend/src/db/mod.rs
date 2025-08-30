@@ -1,5 +1,6 @@
 use alloy::primitives::U256;
-use sqlx::{postgres::PgPoolOptions, PgPool};
+use sqlx::{postgres::PgPoolOptions, types::BigDecimal, PgPool};
+use std::str::FromStr;
 use std::time::Duration;
 use uuid::Uuid;
 
@@ -28,7 +29,7 @@ impl Database {
     // Content operations
     pub async fn create_content(&self, content: Content) -> Result<Uuid> {
         let id = Uuid::new_v4();
-        
+
         sqlx::query!(
             r#"
             INSERT INTO contents (
@@ -83,10 +84,14 @@ impl Database {
         Ok(content)
     }
 
-    pub async fn update_content_status(&self, content_id: U256, status: ContentStatus) -> Result<()> {
+    pub async fn update_content_status(
+        &self,
+        content_id: U256,
+        status: ContentStatus,
+    ) -> Result<()> {
         let content_id = content_id.to::<i64>();
         let status_str = status.to_string();
-        
+
         sqlx::query!(
             r#"
             UPDATE contents SET status = $1, updated_at = NOW()
@@ -159,7 +164,7 @@ impl Database {
 
             let author = if let Some(username) = row.username {
                 Some(User {
-                    address: row.user_address.unwrap(),
+                    address: row.user_address,
                     username: Some(username),
                     sbt_token_id: None,
                     karma: row.karma.unwrap_or(100),
@@ -193,14 +198,16 @@ impl Database {
         evidence: Option<String>,
     ) -> Result<Uuid> {
         let content_id_i64 = content_id.to::<i64>();
-        
+
         // Get content UUID from content_id
-        let content = self.get_content_by_chain_id(content_id_i64).await?
+        let content = self
+            .get_content_by_chain_id(content_id_i64)
+            .await?
             .ok_or(anyhow::anyhow!("Content not found"))?;
-        
+
         let id = Uuid::new_v4();
         let reason_str = format!("{}", reason);
-        
+
         sqlx::query!(
             r#"
             INSERT INTO challenges (
@@ -212,7 +219,7 @@ impl Database {
             challenger_address,
             reason_str,
             evidence,
-            "200000000000000000" // 0.2 MDT
+            BigDecimal::from_str("200000000000000000").unwrap() // 0.2 MDT
         )
         .execute(&self.pool)
         .await?;
@@ -222,10 +229,12 @@ impl Database {
 
     pub async fn resolve_challenge(&self, content_id: U256, guilty: bool) -> Result<()> {
         let content_id_i64 = content_id.to::<i64>();
-        
-        let content = self.get_content_by_chain_id(content_id_i64).await?
+
+        let content = self
+            .get_content_by_chain_id(content_id_i64)
+            .await?
             .ok_or(anyhow::anyhow!("Content not found"))?;
-        
+
         sqlx::query!(
             r#"
             UPDATE challenges 
@@ -259,7 +268,7 @@ impl Database {
             user.username,
             user.sbt_token_id,
             user.karma,
-            user.total_stake,
+            BigDecimal::from_str(&user.total_stake).unwrap(),
             user.reputation_multiplier
         )
         .execute(&self.pool)
@@ -270,13 +279,13 @@ impl Database {
 
     pub async fn update_user_stake(&self, address: String, amount: U256) -> Result<()> {
         let amount_str = amount.to_string();
-        
+
         sqlx::query!(
             r#"
             UPDATE users SET total_stake = $1, updated_at = NOW()
             WHERE address = $2
             "#,
-            amount_str,
+            BigDecimal::from_str(&amount_str).unwrap(),
             address
         )
         .execute(&self.pool)
@@ -286,9 +295,14 @@ impl Database {
     }
 
     // Vote operations
-    pub async fn create_vote(&self, content_id: Uuid, voter_address: String, vote_type: String) -> Result<()> {
+    pub async fn create_vote(
+        &self,
+        content_id: Uuid,
+        voter_address: String,
+        vote_type: String,
+    ) -> Result<()> {
         let id = Uuid::new_v4();
-        
+
         sqlx::query!(
             r#"
             INSERT INTO votes (id, content_id, voter_address, vote_type)
@@ -316,7 +330,7 @@ impl Database {
             "#,
             score.id,
             score.content_id,
-            score.score,
+            score.score as f64,
             score.model_version,
             score.metadata
         )
@@ -327,6 +341,34 @@ impl Database {
     }
 
     // Chain event operations
+    pub async fn track_chain_event(
+        &self,
+        block_number: u64,
+        transaction_hash: String,
+        event_type: &str,
+        data: serde_json::Value,
+    ) -> Result<()> {
+        sqlx::query!(
+            r#"
+            INSERT INTO chain_events (
+                id, block_number, transaction_hash, event_type, 
+                contract_address, data, processed
+            ) VALUES ($1, $2, $3, $4, $5, $6, $7)
+            "#,
+            Uuid::new_v4(),
+            block_number as i64,
+            transaction_hash,
+            event_type,
+            "0x0000000000000000000000000000000000000000", // placeholder
+            data,
+            false
+        )
+        .execute(&self.pool)
+        .await?;
+
+        Ok(())
+    }
+
     pub async fn store_chain_event(&self, event: ChainEvent) -> Result<()> {
         sqlx::query!(
             r#"

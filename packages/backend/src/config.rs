@@ -5,14 +5,11 @@ use std::env;
 pub struct Config {
     // Database
     pub database_url: String,
-    
-    // Redis
-    pub redis_url: String,
-    
+
     // Blockchain
     pub rpc_url: String,
     pub chain_id: u64,
-    
+
     // Contract addresses
     pub mdt_token_address: String,
     pub staking_vault_address: String,
@@ -21,14 +18,14 @@ pub struct Config {
     pub reputation_sbt_address: String,
     pub staking_rewards_address: String,
     pub treasury_address: String,
-    
+
     // Server
     pub backend_port: u16,
     pub backend_host: String,
-    
+
     // API
     pub api_secret_key: String,
-    
+
     // ML Scoring
     pub scoring_service_url: Option<String>,
     pub scoring_api_key: Option<String>,
@@ -37,10 +34,9 @@ pub struct Config {
 impl Config {
     pub fn from_env() -> Result<Self, env::VarError> {
         dotenv::dotenv().ok();
-        
+
         Ok(Config {
             database_url: env::var("DATABASE_URL")?,
-            redis_url: env::var("REDIS_URL")?,
             rpc_url: env::var("MONAD_RPC_URL")?,
             chain_id: env::var("MONAD_CHAIN_ID")?
                 .parse()
@@ -56,8 +52,7 @@ impl Config {
                 .unwrap_or_else(|_| "8787".to_string())
                 .parse()
                 .unwrap_or(8787),
-            backend_host: env::var("BACKEND_HOST")
-                .unwrap_or_else(|_| "0.0.0.0".to_string()),
+            backend_host: env::var("BACKEND_HOST").unwrap_or_else(|_| "0.0.0.0".to_string()),
             api_secret_key: env::var("API_SECRET_KEY")?,
             scoring_service_url: env::var("SCORING_SERVICE_URL").ok(),
             scoring_api_key: env::var("SCORING_API_KEY").ok(),

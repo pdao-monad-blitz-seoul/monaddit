@@ -1,9 +1,4 @@
-use axum::{
-    extract::State,
-    http::StatusCode,
-    response::IntoResponse,
-    Json,
-};
+use axum::{extract::State, http::StatusCode, response::IntoResponse, Json};
 use std::sync::Arc;
 use uuid::Uuid;
 
@@ -21,7 +16,7 @@ pub async fn score_content(
     // In production, you would call an ML model service
     let score = calculate_toxicity_score(&req.text);
     let toxic = score > 0.7;
-    
+
     let categories = if toxic {
         vec!["harassment".to_string(), "hate_speech".to_string()]
     } else {
@@ -59,31 +54,30 @@ fn calculate_toxicity_score(text: &str) -> f32 {
     // Simple keyword-based scoring for demo
     // In production, use a proper ML model
     let toxic_keywords = vec![
-        "hate", "kill", "die", "stupid", "idiot", "moron",
-        "scam", "fraud", "fake", "spam",
+        "hate", "kill", "die", "stupid", "idiot", "moron", "scam", "fraud", "fake", "spam",
     ];
-    
+
     let text_lower = text.to_lowercase();
-    let mut score = 0.0;
-    
+    let mut score: f32 = 0.0;
+
     for keyword in toxic_keywords {
         if text_lower.contains(keyword) {
             score += 0.2;
         }
     }
-    
+
     // Check for excessive caps
     let caps_ratio = text.chars().filter(|c| c.is_uppercase()).count() as f32 / text.len() as f32;
     if caps_ratio > 0.5 {
         score += 0.3;
     }
-    
+
     // Check for excessive punctuation
     let punct_count = text.chars().filter(|c| *c == '!' || *c == '?').count();
     if punct_count > 5 {
         score += 0.2;
     }
-    
+
     score.min(1.0)
 }
 
@@ -92,17 +86,17 @@ pub async fn batch_score(
     Json(requests): Json<Vec<ScoreContentRequest>>,
 ) -> Result<impl IntoResponse, StatusCode> {
     let mut responses = Vec::new();
-    
+
     for req in requests {
         let score = calculate_toxicity_score(&req.text);
         let toxic = score > 0.7;
-        
+
         let categories = if toxic {
             vec!["harassment".to_string()]
         } else {
             vec![]
         };
-        
+
         responses.push(ScoreContentResponse {
             content_id: req.content_id,
             score,
@@ -110,7 +104,7 @@ pub async fn batch_score(
             categories,
         });
     }
-    
+
     Ok(Json(responses))
 }
 

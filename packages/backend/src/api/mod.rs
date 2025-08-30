@@ -1,14 +1,10 @@
 pub mod content;
 pub mod score;
-pub mod vote;
 pub mod user;
+pub mod vote;
 
-use axum::{
-    extract::State,
-    http::StatusCode,
-    response::IntoResponse,
-    Json,
-};
+use alloy::providers::Provider;
+use axum::{extract::State, http::StatusCode, response::IntoResponse, Json};
 use serde_json::json;
 use std::sync::Arc;
 

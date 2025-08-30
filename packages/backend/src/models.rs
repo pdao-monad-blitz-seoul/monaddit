@@ -1,6 +1,6 @@
 use chrono::{DateTime, Utc};
 use serde::{Deserialize, Serialize};
-use sqlx::FromRow;
+use sqlx::{types::BigDecimal, FromRow};
 use uuid::Uuid;
 
 #[derive(Debug, Clone, Serialize, Deserialize, FromRow)]
@@ -15,7 +15,7 @@ pub struct Content {
     pub content_type: String,
     pub parent_id: Option<Uuid>,
     pub community_id: Option<String>,
-    pub bond_amount: String,
+    pub bond_amount: BigDecimal,
     pub status: String,
     pub published_at: DateTime<Utc>,
     pub lock_until: Option<DateTime<Utc>>,
@@ -49,7 +49,7 @@ pub struct Challenge {
     pub challenger_address: String,
     pub reason: String,
     pub evidence: Option<String>,
-    pub bond_amount: String,
+    pub bond_amount: BigDecimal,
     pub resolved: bool,
     pub guilty: Option<bool>,
     pub created_at: DateTime<Utc>,

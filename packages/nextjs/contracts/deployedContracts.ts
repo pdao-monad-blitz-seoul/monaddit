@@ -3395,7 +3395,7 @@ const deployedContracts = {
         },
       ],
       inheritedFunctions: {},
-      deployedOnBlock: 4,
+      deployedOnBlock: 3,
     },
     ReputationSBT: {
       address: "0xe1aa25618fa0c7a1cfdab5d6b456af611873b629",
@@ -4457,7 +4457,7 @@ const deployedContracts = {
         },
       ],
       inheritedFunctions: {},
-      deployedOnBlock: 5,
+      deployedOnBlock: 4,
     },
     StakingRewards: {
       address: "0xe1da8919f262ee86f9be05059c9280142cf23f48",
@@ -5183,7 +5183,7 @@ const deployedContracts = {
         },
       ],
       inheritedFunctions: {},
-      deployedOnBlock: 5,
+      deployedOnBlock: 4,
     },
     Treasury: {
       address: "0x0c8e79f3534b00d9a3d4a856b665bf4ebc22f2ba",
@@ -6023,7 +6023,7 @@ const deployedContracts = {
         },
       ],
       inheritedFunctions: {},
-      deployedOnBlock: 5,
+      deployedOnBlock: 4,
     },
   },
 } as const;

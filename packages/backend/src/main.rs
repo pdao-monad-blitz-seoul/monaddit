@@ -2,6 +2,7 @@ mod api;
 mod chain;
 mod config;
 mod db;
+mod middleware;
 mod models;
 mod workers;
 
@@ -13,7 +14,7 @@ use std::net::SocketAddr;
 use std::sync::Arc;
 use tower_http::cors::{Any, CorsLayer};
 use tower_http::trace::TraceLayer;
-use tracing::{info, error};
+use tracing::{error, info};
 use tracing_subscriber::{layer::SubscriberExt, util::SubscriberInitExt};
 
 use crate::{
@@ -69,7 +70,7 @@ async fn main() -> anyhow::Result<()> {
     let event_db = db.clone();
     let event_config = config.clone();
     tokio::spawn(async move {
-        let mut listener = EventListener::new(event_db, event_config);
+        let mut listener = EventListener::new(event_config, event_db);
         if let Err(e) = listener.start().await {
             error!("Event listener error: {}", e);
         }
@@ -88,29 +89,26 @@ async fn main() -> anyhow::Result<()> {
         // Health check
         .route("/health", get(api::health_check))
         .route("/chain/status", get(api::chain_status))
-        
         // Content endpoints
         .route("/api/content", post(api::content::create_content))
         .route("/api/content/:id", get(api::content::get_content))
         .route("/api/contents", get(api::content::list_contents))
-        .route("/api/content/hash/:hash", get(api::content::get_content_by_hash))
+        .route(
+            "/api/content/hash/:hash",
+            get(api::content::get_content_by_hash),
+        )
         .route("/api/stats", get(api::content::get_stats))
-        
         // Scoring endpoints
         .route("/api/score", post(api::score::score_content))
         .route("/api/score/batch", post(api::score::batch_score))
         .route("/api/webhook/ml-score", post(api::score::ml_score_webhook))
-        
         // Vote endpoints
         .route("/api/vote/:content_id", post(api::vote::create_vote))
-        
         // User endpoints
         .route("/api/user/:address", get(api::user::get_user_profile))
         .route("/api/user/:address", post(api::user::update_user_profile))
-        
         // Add state
         .with_state(app_state)
-        
         // Add middleware
         .layer(
             CorsLayer::new()
@@ -123,11 +121,11 @@ async fn main() -> anyhow::Result<()> {
     // Start server
     let addr = SocketAddr::from(([0, 0, 0, 0], config.backend_port));
     info!("Server listening on {}", addr);
-    
+
     let listener = tokio::net::TcpListener::bind(addr)
         .await
         .expect("Failed to bind address");
-    
+
     axum::serve(listener, app)
         .await
         .expect("Failed to start server");

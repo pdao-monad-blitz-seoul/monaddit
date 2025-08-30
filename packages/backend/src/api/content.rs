@@ -6,6 +6,8 @@ use axum::{
 };
 use serde::{Deserialize, Serialize};
 use sha3::{Digest, Keccak256};
+use sqlx::types::BigDecimal;
+use std::str::FromStr;
 use std::sync::Arc;
 use uuid::Uuid;
 
@@ -45,7 +47,7 @@ pub async fn create_content(
         content_type: req.content_type,
         parent_id: req.parent_id,
         community_id: req.community_id,
-        bond_amount: "100000000000000000".to_string(), // 0.1 MDT
+        bond_amount: BigDecimal::from_str("100000000000000000").unwrap(), // 0.1 MDT
         status: "pending".to_string(),
         published_at: chrono::Utc::now(),
         lock_until: Some(chrono::Utc::now() + chrono::Duration::days(7)),
@@ -100,9 +102,9 @@ pub async fn list_contents(
 }
 
 pub async fn get_content_by_hash(
-    State(state): State<Arc<AppState>>,
-    Path(hash): Path<String>,
-) -> Result<impl IntoResponse, StatusCode> {
+    State(_state): State<Arc<AppState>>,
+    Path(_hash): Path<String>,
+) -> Result<Json<Content>, StatusCode> {
     // Query database for content with this hash
     // This is a simplified version - you'd need to add this query to the Database impl
     Err(StatusCode::NOT_IMPLEMENTED)
@@ -116,7 +118,7 @@ pub struct ContentStats {
 }
 
 pub async fn get_stats(
-    State(state): State<Arc<AppState>>,
+    State(_state): State<Arc<AppState>>,
 ) -> Result<impl IntoResponse, StatusCode> {
     // Get statistics from database
     // This is a simplified version - you'd need to add these queries to the Database impl
