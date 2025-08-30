@@ -278,7 +278,7 @@ export function StakingPanel() {
             </div>
 
             <button
-              className={`btn btn-primary w-full text-white ${isApproving || isDepositing ? "loading" : ""}`}
+              className={`btn btn-primary w-full text-gray-900 ${isApproving || isDepositing ? "loading" : ""}`}
               onClick={handleStake}
               disabled={
                 isApproving || 
